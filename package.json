@@ -1,0 +1,36 @@
+{
+  "name": "relatorio-semanal-matheus",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@sparticuz/chromium": "^149.0.0",
+    "@supabase/supabase-js": "^2.108.0",
+    "googleapis": "^173.0.0",
+    "luxon": "^3.7.2",
+    "next": "^14.2.35",
+    "puppeteer-core": "^25.1.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/luxon": "^3.7.1",
+    "@types/node": "^25.9.2",
+    "@types/react": "^19.2.17",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.8"
+  }
+}
