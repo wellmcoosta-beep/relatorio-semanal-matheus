@@ -128,13 +128,16 @@ export async function fetchCloserRaw(fromISO: string, toISO: string): Promise<{ 
 
   const run = async (withTimestamp: boolean): Promise<Row[]> => {
     const select = withTimestamp ? baseSelect + ', motorista_registrado_em' : baseSelect
-    const q = sb
+    // Week membership ALWAYS anchors on created_at — motorista_registrado_em has no backfill
+    // (NULL on every existing row) so filtering by it would return zero results.
+    // The column is still SELECTed (when available) to compute the SLA-fechamento delta,
+    // which is null-safe and renders "—" until the column is backfilled.
+    const { data, error } = await sb
       .from('closer_cargas')
       .select(select)
       .eq('motorista_registrado', true)
-    const { data, error } = withTimestamp
-      ? await q.gte('motorista_registrado_em', fromISO).lte('motorista_registrado_em', toISO)
-      : await q.gte('created_at', fromISO).lte('created_at', toISO)
+      .gte('created_at', fromISO)
+      .lte('created_at', toISO)
     if (error) throw error
     return (data || []) as unknown as Row[]
   }
