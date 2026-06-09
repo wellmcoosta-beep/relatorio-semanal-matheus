@@ -18,7 +18,7 @@ export function msToLabel(ms: number | null): string {
   const h = Math.floor(min / 60), m = min % 60
   if (h < 24) return m ? `${h}h${pad(m)}` : `${h}h`
   const d = Math.floor(h / 24), hr = h % 24
-  return `${d}d ${hr}h`
+  return hr ? `${d}d ${hr}h` : `${d}d`
 }
 const pad = (n: number) => String(n).padStart(2, '0')
 

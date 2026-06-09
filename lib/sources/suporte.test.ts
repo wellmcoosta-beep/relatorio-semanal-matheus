@@ -21,5 +21,8 @@ describe('buildSuporteData', () => {
     expect(out.pontualidadePct).toBe(50) // (1+1)/4
     expect(out.ocorrencias[0].categoria).toBe('Mecânico / veículo')
     expect(out.ocorrencias.map(o => o.categoria)).toContain('Transbordo')
+    expect(out.ocorrencias.find(o => o.categoria === 'Mecânico / veículo')?.qtd).toBe(1)
+    expect(out.ocorrencias.find(o => o.categoria === 'Transbordo')?.qtd).toBe(1)
+    expect(out.ocorrencias).toHaveLength(2)
   })
 })

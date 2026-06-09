@@ -5,8 +5,7 @@ import type { CloserData } from '../types'
 interface RawCarga {
   frete_motorista_closer: number | null
   cc_gerada: number | null
-  // baseElegivel: frete_motorista_comercial quando !isFreteFixoExcluido, 0 otherwise.
-  // Calculado em mapBase() durante fetchCloserRaw; passed through in tests.
+  // baseElegivel: frete_motorista_comercial for non-excluded cargas (mirrors cotações dashboard denominator), 0 for excluded ones.
   baseElegivel: number
   created_at: string
   postada_em: string | null
@@ -129,12 +128,13 @@ export async function fetchCloserRaw(fromISO: string, toISO: string): Promise<{ 
 
   const run = async (withTimestamp: boolean): Promise<Row[]> => {
     const select = withTimestamp ? baseSelect + ', motorista_registrado_em' : baseSelect
-    const { data, error } = await sb
+    const q = sb
       .from('closer_cargas')
       .select(select)
       .eq('motorista_registrado', true)
-      .gte('created_at', fromISO)
-      .lte('created_at', toISO)
+    const { data, error } = withTimestamp
+      ? await q.gte('motorista_registrado_em', fromISO).lte('motorista_registrado_em', toISO)
+      : await q.gte('created_at', fromISO).lte('created_at', toISO)
     if (error) throw error
     return (data || []) as unknown as Row[]
   }

@@ -11,7 +11,7 @@ export const CATEGORIAS: Categoria[] = [
 const REGRAS: { cat: Categoria; kws: string[] }[] = [
   { cat: 'Transbordo', kws: ['transbord'] },
   { cat: 'Mecânico / veículo', kws: ['mecanic', 'mecânic', 'quebr', 'bateria', 'estragad', 'pneu', 'veiculo', 'veículo'] },
-  { cat: 'Prazo curto / trânsito', kws: ['prazo curt', 'prazo muit curt', 'transito', 'trânsito', 'tempo curto', 'distan'] },
+  { cat: 'Prazo curto / trânsito', kws: ['prazo curt', 'prazo muit curt', 'transito', 'trânsito', 'tempo curto', 'distan', 'demora'] },
   { cat: 'Cliente / agendamento', kws: ['cliente', 'agenda', 'receber', 'espera', 'descarreg'] },
 ]
 
