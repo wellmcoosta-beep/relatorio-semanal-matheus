@@ -1,5 +1,5 @@
-import { google } from 'googleapis'
 import { DateTime } from 'luxon'
+import { parseCsv } from '../csv'
 import { categorizeMotivo } from '../categorizeMotivo'
 import { pontualidade, rankOcorrencias } from '../metrics'
 import type { SuporteData } from '../types'
@@ -29,14 +29,14 @@ export function buildSuporteData(rows: Row[], w: { fromISO: string; toISO: strin
   return { viagens, noPrazo, antecipadas, atrasadas, pontualidadePct: pontualidade({ total: viagens, noPrazo, antecipadas }), ocorrencias }
 }
 
-// I/O: lê a aba de registro via Google Sheets API (service account).
+// I/O: lê a aba de registro como CSV público (planilha compartilhada como link-viewable).
 export async function fetchSuporteRows(): Promise<Row[]> {
-  const creds = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON!)
-  const auth = new google.auth.GoogleAuth({ credentials: creds, scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'] })
-  const sheets = google.sheets({ version: 'v4', auth })
-  const res = await sheets.spreadsheets.values.get({
-    spreadsheetId: process.env.GOOGLE_SHEET_ID!,
-    range: 'A2:H', // pula o cabeçalho da aba de registro
-  })
-  return (res.data.values as Row[]) || []
+  const id = process.env.GOOGLE_SHEET_ID!
+  const gid = process.env.GOOGLE_SHEET_GID || '0'
+  const url = `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&gid=${gid}`
+  const res = await fetch(url, { cache: 'no-store' })
+  if (!res.ok) throw new Error(`Sheet CSV ${res.status}`)
+  const csv = await res.text()
+  const rows = parseCsv(csv)
+  return rows.slice(1) // remove a linha de cabeçalho (gviz inclui o header)
 }
