@@ -5,3 +5,8 @@ node_modules/
 .superpowers/
 
 tsconfig.tsbuildinfo
+
+.vercel
+.vercel
+.vercel.env
+.cronsecret
