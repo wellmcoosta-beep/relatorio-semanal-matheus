@@ -3,7 +3,7 @@ import { msToLabel } from '../metrics'
 import type { FiscalData } from '../types'
 
 interface RawCancelado { impacto_financeiro: number | null; guia_paga: boolean | null }
-interface RawDenegado { motivo_categoria: string | null }
+interface RawDenegado { motivo_categoria: string | null; impacto_financeiro: number | null; guia_paga: boolean | null }
 interface FiscalRaw {
   ctesEmitidos: number
   cancelados: RawCancelado[]
@@ -13,7 +13,9 @@ interface FiscalRaw {
 }
 
 export function buildFiscalData(raw: FiscalRaw): FiscalData {
-  const prejuizoIcms = raw.cancelados.reduce((s, c) => s + (c.guia_paga ? (c.impacto_financeiro || 0) : 0), 0)
+  const somaGuia = (arr: { impacto_financeiro: number | null; guia_paga: boolean | null }[]) =>
+    arr.reduce((s, c) => s + (c.guia_paga ? (c.impacto_financeiro || 0) : 0), 0)
+  const prejuizoIcms = somaGuia(raw.cancelados) + somaGuia(raw.denegados)
   const counts = new Map<string, number>()
   for (const d of raw.denegados) {
     const k = d.motivo_categoria || 'Outro'
@@ -37,7 +39,7 @@ export async function fetchFiscalRaw(fromISO: string, toISO: string): Promise<Om
   const sb = createClient(process.env.FISCAL_SUPABASE_URL!, process.env.FISCAL_SUPABASE_SERVICE_KEY!)
   const [{ data: cancelados }, { data: denegados }] = await Promise.all([
     sb.from('ctes_cancelados').select('impacto_financeiro, guia_paga').gte('data_cancelamento', fromISO).lte('data_cancelamento', toISO),
-    sb.from('ctes_denegados').select('motivo_categoria').gte('data_denegacao', fromISO).lte('data_denegacao', toISO),
+    sb.from('ctes_denegados').select('motivo_categoria, impacto_financeiro, guia_paga').gte('data_denegacao', fromISO).lte('data_denegacao', toISO),
   ])
   const ctesEmitidos = await fetchEmitidosCount(fromISO, toISO)
   return { ctesEmitidos, cancelados: cancelados || [], denegados: denegados || [] }
